@@ -316,7 +316,7 @@ const ViewContent = ({ setOfficeScreenContent }) => {
                   key={index}
                   style={{
                     backgroundColor:
-                      index % 2 === 0 ? "rgba(227, 213, 202, 0.2)" : "#3b4d70",
+                      index % 2 === 0 ? "rgba(227, 213, 202, 0.6)" : "#3b4d70",
                     color: index % 2 === 0 ? "black" : "white",
                   }}
                 >

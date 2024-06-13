@@ -4,7 +4,7 @@ import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt, faEdit, faTimes } from "@fortawesome/free-solid-svg-icons";
 import Entur from "./Entur"; // Import Entur component
-import "./Office.css";
+
 import "./index.css";
 import bg from "./images/bg.png";
 
@@ -58,6 +58,7 @@ const OfficeScreen = ({
   const fetchUserData = async (userId) => {
     try {
       const response = await axios.get(`http://localhost:3000/users/${userId}`);
+      console.log(`Fetched user data for user_id ${userId}:`, response.data); // Debug log
       return response.data.name;
     } catch (error) {
       console.error(`Error fetching user data for user_id ${userId}:`, error);
@@ -73,10 +74,12 @@ const OfficeScreen = ({
           .map((entry) => entry.user_id)
       ),
     ];
+    console.log("Unique user IDs to fetch:", uniqueUserIds); // Debug log
     const userData = {};
     for (const userId of uniqueUserIds) {
       userData[userId] = await fetchUserData(userId);
     }
+    console.log("Fetched user data:", userData); // Debug log
     setUsers(userData);
   };
 
@@ -99,6 +102,7 @@ const OfficeScreen = ({
 
   const renderEntry = (entry, index) => {
     let content;
+    console.log("Rendering entry:", entry); // Debug log
     switch (entry.table) {
       case "events":
         content = (
@@ -149,6 +153,7 @@ const OfficeScreen = ({
         );
         break;
       case "comments":
+        console.log("Rendering comment entry:", entry); // Debug log
         content = (
           <div
             key={index}
@@ -287,9 +292,17 @@ const OfficeScreen = ({
 
   // Sort entries by date in ascending order and filter out expired items
   const sortedEntries = (entries) => {
-    return entries
-      .filter((entry) => isFutureOrToday(entry.date))
-      .sort((a, b) => new Date(a.date) - new Date(b.date));
+    let sorted;
+    if (entries[0]?.table === "comments") {
+      // No date filtering for comments
+      sorted = entries;
+    } else {
+      sorted = entries
+        .filter((entry) => isFutureOrToday(entry.date))
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+    }
+    console.log("Sorted entries:", sorted); // Debug log
+    return sorted;
   };
 
   // Styles
@@ -304,9 +317,9 @@ const OfficeScreen = ({
   };
 
   const sectionStyle = {
-    backgroundColor: "rgba(249, 247, 244)",
+    backgroundColor: "white",
     color: "black",
-    borderRadius: "25px",
+    borderRadius: "15px",
     padding: "20px",
     marginBottom: "0px",
     width: "400px",
@@ -362,6 +375,10 @@ const OfficeScreen = ({
   const handleMouseLeave = (setButtonStyle) => {
     setButtonStyle({});
   };
+
+  useEffect(() => {
+    console.log("OfficeScreen Content: ", officeScreenContent); // Debug log
+  }, [officeScreenContent]);
 
   return (
     <div
