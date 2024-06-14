@@ -13,11 +13,16 @@
     "bootstrap": "^5.3.3",
     "cors": "^2.8.5",
     "react": "^18.3.1",
+    "react-chromecast": "^0.0.5-alpha",
     "react-dom": "^18.3.1",
+    "react-native-airplay-ios": "^1.0.7",
     "react-router-dom": "^6.23.1",
     "react-scripts": "5.0.1",
     "screenfull": "^6.0.2",
     "web-vitals": "^2.1.4"
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-private-property-in-object": "^7.21.11"
   },
   "scripts": {
     "start": "react-scripts start",

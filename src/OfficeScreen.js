@@ -4,7 +4,6 @@ import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt, faEdit, faTimes } from "@fortawesome/free-solid-svg-icons";
 import Entur from "./Entur"; // Import Entur component
-
 import "./index.css";
 import bg from "./images/bg.png";
 
@@ -21,6 +20,7 @@ const OfficeScreen = ({
   const [addButtonStyle, setAddButtonStyle] = useState({});
   const [deleteButtonStyle, setDeleteButtonStyle] = useState({});
   const [editButtonStyle, setEditButtonStyle] = useState({});
+  const [fullScreenSection, setFullScreenSection] = useState(false); // State for fullscreen section
 
   useEffect(() => {
     if (screenfull.isEnabled) {
@@ -28,6 +28,7 @@ const OfficeScreen = ({
         setShowButton(!screenfull.isFullscreen);
         toggleLinkVisibility();
         if (!screenfull.isFullscreen) {
+          setFullScreenSection(false);
           const element = document.getElementById("office-screen-container");
           if (element) {
             element.style.transform = "";
@@ -44,7 +45,11 @@ const OfficeScreen = ({
   useEffect(() => {
     const handleKeyUp = (event) => {
       if (event.key === "Escape" && screenfull.isFullscreen) {
-        screenfull.exit();
+        if (fullScreenSection) {
+          setFullScreenSection(false);
+        } else {
+          screenfull.exit();
+        }
       }
     };
 
@@ -53,7 +58,7 @@ const OfficeScreen = ({
     return () => {
       document.removeEventListener("keyup", handleKeyUp);
     };
-  }, []);
+  }, [fullScreenSection]);
 
   const fetchUserData = async (userId) => {
     try {
@@ -113,17 +118,28 @@ const OfficeScreen = ({
               justifyContent: "space-between",
               alignItems: "center",
               width: "100%",
-              padding: "20px", // Reduced padding
-              marginBottom: "0px", // Reduced margin
+              padding: "10px",
+              marginBottom: "0px",
             }}
           >
-            <span style={{ textAlign: "left" }}>
+            <span
+              className="content-text"
+              style={{ textAlign: "left", flex: 1 }}
+            >
               {entry.title || "No Title"}
             </span>
-            <span style={{ textAlign: "center" }}>
+            <span
+              className="content-text"
+              style={{ textAlign: "center", flex: 1 }}
+            >
               {entry.description || "No Description"}
             </span>
-            <span style={{ textAlign: "right" }}>{formatDate(entry.date)}</span>
+            <span
+              className="content-text"
+              style={{ textAlign: "right", flex: 1, marginRight: "-10px" }}
+            >
+              {formatDate(entry.date)}
+            </span>
           </div>
         );
         break;
@@ -139,14 +155,20 @@ const OfficeScreen = ({
               justifyContent: "space-between",
               alignItems: "center",
               width: "100%",
-              padding: "20px", // Reduced padding
-              marginBottom: "5px", // Reduced margin
+              padding: "5px",
+              marginBottom: "0px",
             }}
           >
-            <span style={{ textAlign: "left", flex: 1 }}>
+            <span
+              className="content-text"
+              style={{ textAlign: "left", flex: 1 }}
+            >
               {menu || "No Menu"}
             </span>
-            <span style={{ textAlign: "right", flex: 1 }}>
+            <span
+              className="content-text"
+              style={{ textAlign: "right", flex: 1, marginRight: "-5px" }}
+            >
               {formatDate(entry.date)}
             </span>
           </div>
@@ -162,14 +184,20 @@ const OfficeScreen = ({
               justifyContent: "space-between",
               alignItems: "center",
               width: "100%",
-              padding: "10px", // Reduced padding
-              marginBottom: "10px", // Reduced margin
+              padding: "5px",
+              marginBottom: "0px",
             }}
           >
-            <span style={{ textAlign: "left", flex: 1 }}>
+            <span
+              className="content-text"
+              style={{ textAlign: "left", flex: 1 }}
+            >
               {entry.content || "No Comment"}
             </span>
-            <span style={{ textAlign: "right", flex: 1 }}>
+            <span
+              className="content-text"
+              style={{ textAlign: "right", flex: 1, marginRight: "-2px" }}
+            >
               {users[entry.user_id] || "Unknown User"}
             </span>
           </div>
@@ -177,18 +205,10 @@ const OfficeScreen = ({
         break;
       default:
         content = (
-          <div
-            key={index}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              width: "100%",
-              padding: "10px", // Reduced padding
-              marginBottom: "10px", // Reduced margin
-            }}
-          >
-            <span style={{ textAlign: "left" }}>{entry.comment}</span>
+          <div key={index} className="entry">
+            <span className="content-text" style={{ textAlign: "left" }}>
+              {entry.comment}
+            </span>
           </div>
         );
     }
@@ -196,17 +216,15 @@ const OfficeScreen = ({
     return (
       <div
         key={index}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
+        className="entry-wrapper"
+        style={{ display: "flex", alignItems: "center" }}
       >
         {editMode && (
           <input
             type="checkbox"
             checked={selectedItems.includes(entry)}
             onChange={() => toggleSelection(entry)}
+            style={{ marginRight: "10px" }}
           />
         )}
         {content}
@@ -218,13 +236,10 @@ const OfficeScreen = ({
     return (
       <div
         key={index}
+        className="entry content-text"
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          width: "100%",
-          padding: "10px", // Reduced padding
-          marginBottom: "10px", // Reduced margin
+          padding: fullScreenSection ? "30px" : "10px",
+          fontSize: fullScreenSection ? "1em" : "1em",
         }}
       >
         <span style={{ textAlign: "left", flex: 1, color: "#40547a" }}>
@@ -246,7 +261,7 @@ const OfficeScreen = ({
         const element = document.getElementById("office-screen-container");
         if (element) {
           const rect = element.getBoundingClientRect();
-          const minScale = 0.7; // Set a minimum scale value to ensure it's not too small
+          const minScale = 0.4; // Set a minimum scale value to ensure it's not too small
           const scale = Math.max(
             minScale,
             Math.min(
@@ -254,9 +269,7 @@ const OfficeScreen = ({
               window.innerHeight / rect.height
             )
           );
-          // element.style.transform = `scale(${scale})`;
           element.style.transformOrigin = "top center";
-          // element.style.margin = "0 auto";
         }
       } else {
         const element = document.getElementById("office-screen-container");
@@ -305,7 +318,21 @@ const OfficeScreen = ({
     return sorted;
   };
 
-  // Styles
+  //
+
+  const buttonStyle = {
+    backgroundColor: "#242f45",
+    color: "white",
+    border: "none",
+    borderRadius: "4px",
+    padding: "10px 20px",
+    cursor: "pointer",
+    fontWeight: "bold",
+    marginTop: "5px",
+    marginRight: "10px",
+    transition: "all 0.3s ease",
+  };
+
   const containerStyle = {
     display: "flex",
     flexWrap: "wrap",
@@ -322,11 +349,12 @@ const OfficeScreen = ({
     borderRadius: "15px",
     padding: "20px",
     marginBottom: "0px",
-    width: "400px",
-    height: "auto",
+    width: "400px", // Default width
+    height: "auto", // Default height
     boxShadow: "0px 5px 10px rgba(0, 0, 0, 0.2)",
     textAlign: "center",
     marginTop: "35px",
+    transition: "all 0.5s ease", // Smooth transition for expansion
   };
 
   const titleStyle = {
@@ -334,6 +362,7 @@ const OfficeScreen = ({
     marginBottom: "30px",
     marginTop: "0px",
     color: "black",
+    fontSize: "20px", // Default font size
   };
 
   const subtitleStyle = {
@@ -341,44 +370,71 @@ const OfficeScreen = ({
     justifyContent: "space-between",
     padding: "0 20px",
     fontWeight: "bold",
+    fontSize: "16px", // Default font size
   };
 
-  const iconButtonStyle = {
-    backgroundColor: "transparent",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "20px",
-    marginLeft: "10px",
-    marginTop: "20px",
-  };
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1420) {
+        document.querySelectorAll(".section").forEach((section) => {
+          section.style.width = "600px"; // Width for TV screen
+          section.style.height = "auto"; // Height for TV screen
+        });
+        document.querySelectorAll(".title").forEach((title) => {
+          title.style.fontSize = "40px"; // Font size for TV screen
+        });
+        document.querySelectorAll(".subtitle").forEach((subtitle) => {
+          subtitle.style.fontSize = "28px"; // Font size for TV screen
+        });
+        document.querySelectorAll(".content-text").forEach((content) => {
+          content.style.fontSize = "1.5em"; // Increase content text size for TV screen
+        });
+      } else {
+        document.querySelectorAll(".section").forEach((section) => {
+          section.style.width = "400px"; // Default width
+          section.style.height = "auto"; // Default height
+        });
+        document.querySelectorAll(".title").forEach((title) => {
+          title.style.fontSize = "20px"; // Default font size
+        });
+        document.querySelectorAll(".subtitle").forEach((subtitle) => {
+          subtitle.style.fontSize = "16px"; // Default font size
+        });
+        document.querySelectorAll(".content-text").forEach((content) => {
+          content.style.fontSize = "1em"; // Default content text size
+        });
+      }
+    };
 
-  const buttonStyle = {
-    backgroundColor: "#242f45",
-    color: "white",
-    border: "none",
-    borderRadius: "4px",
-    padding: "10px 20px",
-    cursor: "pointer",
-    fontWeight: "bold",
-    marginTop: "5px",
-    marginRight: "10px",
-    transition: "background-color 0.3s, color 0.3s",
-  };
+    window.addEventListener("resize", handleResize);
+    handleResize(); // Call once on mount
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleMouseEnter = (setButtonStyle) => {
     setButtonStyle({
-      backgroundColor: "#242f45",
-      color: "white",
+      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
+      transform: "scale(1.05)",
     });
   };
 
   const handleMouseLeave = (setButtonStyle) => {
-    setButtonStyle({});
+    setButtonStyle({
+      boxShadow: "none",
+      transform: "scale(1)",
+    });
   };
 
   useEffect(() => {
     console.log("OfficeScreen Content: ", officeScreenContent); // Debug log
   }, [officeScreenContent]);
+
+  const handleDoubleClick = () => {
+    if (screenfull.isFullscreen) {
+      setFullScreenSection(!fullScreenSection);
+    }
+  };
 
   return (
     <div
@@ -448,19 +504,35 @@ const OfficeScreen = ({
       )}
 
       <div style={containerStyle}>
-        <div style={sectionStyle}>
-          <h3 style={{ ...titleStyle, color: "#40547a", marginBottom: "20px" }}>
+        <div className="section" style={sectionStyle}>
+          <h3
+            className="title"
+            style={{ ...titleStyle, color: "#40547a", marginBottom: "20px" }}
+          >
             Arrangementer
           </h3>
-
-          <div style={subtitleStyle}>
-            <span style={{ flex: 1, textAlign: "left", color: "#40547a" }}>
+          <div className="subtitle" style={subtitleStyle}>
+            <span
+              style={{
+                flex: 1,
+                textAlign: "left",
+                marginLeft: "-10px",
+                color: "#40547a",
+              }}
+            >
               Tittel
             </span>
             <span style={{ flex: 1, textAlign: "center", color: "#40547a" }}>
               Beskrivelse
             </span>
-            <span style={{ flex: 1, textAlign: "right", color: "#40547a" }}>
+            <span
+              style={{
+                flex: 1,
+                textAlign: "right",
+                marginRight: "-15px",
+                color: "#40547a",
+              }}
+            >
               Dato
             </span>
           </div>
@@ -472,16 +544,46 @@ const OfficeScreen = ({
               .map((event, index) => renderEntry(event, index))}
           </ul>
         </div>
-        <div style={sectionStyle}>
-          <h3 style={{ ...titleStyle, color: "#40547a", marginBottom: "20px" }}>
+        <div
+          className="section"
+          style={{
+            ...sectionStyle,
+            ...(fullScreenSection
+              ? {
+                  position: "fixed",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: "90%",
+                  height: "90%",
+                  zIndex: 1000,
+                  overflow: "auto",
+                  fontSize: "3em", // Triple the font size
+                  padding: "30px", // Triple the padding
+                }
+              : {}),
+          }}
+          onDoubleClick={handleDoubleClick}
+        >
+          <h3
+            className="title"
+            style={{
+              ...titleStyle,
+              color: "#40547a",
+              marginBottom: "20px",
+              fontSize: fullScreenSection ? "40px" : "20px", // Triple the font size
+            }}
+          >
             Majorstuen T-banestasjon
           </h3>
           <div
+            className="subtitle"
             style={{
               display: "flex",
               justifyContent: "space-between",
               fontWeight: "bold",
               color: "#40547a",
+              fontSize: fullScreenSection ? "32px" : "16px", // Triple the font size
             }}
           >
             <span style={{ textAlign: "left" }}>Linje</span>
@@ -494,49 +596,97 @@ const OfficeScreen = ({
             )}
           </ul>
         </div>
-        <div style={sectionStyle}>
-          <h3 style={{ ...titleStyle, color: "#40547a", marginBottom: "20px" }}>
-            Kantinemeny
-          </h3>
-          <div style={subtitleStyle}>
-            <span style={{ flex: 1, textAlign: "left", color: "#40547a" }}>
-              Dagens rett
-            </span>
-            <span style={{ flex: 1, textAlign: "right", color: "#40547a" }}>
-              Dato
-            </span>
-          </div>
-          <ul style={{ listStyleType: "none", padding: 0 }}>
-            {sortedEntries(
-              officeScreenContent.filter(
-                (entry) => entry.table === "canteenMenu"
-              )
-            )
-              .slice(0, 4) // Limit to 4 items
-              .map((menu, index) => renderEntry(menu, index))}
-          </ul>
-        </div>
-        <div style={sectionStyle}>
-          <h3 style={{ ...titleStyle, color: "#40547a", marginBottom: "20px" }}>
-            Beskjeder
-          </h3>
+        {!fullScreenSection && (
+          <>
+            <div className="section" style={sectionStyle}>
+              <h3
+                className="title"
+                style={{
+                  ...titleStyle,
+                  color: "#40547a",
+                  marginBottom: "20px",
+                }}
+              >
+                Kantinemeny
+              </h3>
+              <div className="subtitle" style={subtitleStyle}>
+                <span
+                  style={{
+                    flex: 1,
+                    textAlign: "left",
+                    marginLeft: "-15px",
+                    color: "#40547a",
+                  }}
+                >
+                  Dagens rett
+                </span>
+                <span
+                  style={{
+                    flex: 1,
+                    textAlign: "right",
+                    marginRight: "-15px",
+                    color: "#40547a",
+                  }}
+                >
+                  Dato
+                </span>
+              </div>
+              <ul style={{ listStyleType: "none", padding: 0 }}>
+                {sortedEntries(
+                  officeScreenContent.filter(
+                    (entry) => entry.table === "canteenMenu"
+                  )
+                )
+                  .slice(0, 4) // Limit to 4 items
+                  .map((menu, index) => renderEntry(menu, index))}
+              </ul>
+            </div>
+            <div className="section" style={sectionStyle}>
+              <h3
+                className="title"
+                style={{
+                  ...titleStyle,
+                  color: "#40547a",
+                  marginBottom: "20px",
+                }}
+              >
+                Beskjeder
+              </h3>
 
-          <div style={subtitleStyle}>
-            <span
-              style={{ flex: 1, textAlign: "left", color: "#40547a" }}
-            ></span>
-            <span
-              style={{ flex: 1, textAlign: "right", color: "#40547a" }}
-            ></span>
-          </div>
-          <ul style={{ listStyleType: "none", padding: 0 }}>
-            {sortedEntries(
-              officeScreenContent.filter((entry) => entry.table === "comments")
-            )
-              .slice(0, 4) // Limit to 4 items
-              .map((comment, index) => renderEntry(comment, index))}
-          </ul>
-        </div>
+              <div className="subtitle" style={subtitleStyle}>
+                <span
+                  style={{
+                    flex: 1,
+                    textAlign: "left",
+                    marginLeft: "-15px",
+                    color: "#40547a",
+                  }}
+                >
+                  Innhold
+                </span>
+                <span
+                  style={{
+                    flex: 1,
+                    textAlign: "right",
+                    marginRight: "-15px",
+                    color: "#40547a",
+                  }}
+                >
+                  Skrevet av{" "}
+                </span>
+              </div>
+              <ul style={{ listStyleType: "none", padding: 0 }}>
+                {sortedEntries(
+                  officeScreenContent.filter(
+                    (entry) => entry.table === "comments"
+                  )
+                )
+                  .slice(0, 4) // Limit to 4 items
+                  .map((comment, index) => renderEntry(comment, index))}
+              </ul>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

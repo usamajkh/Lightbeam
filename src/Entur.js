@@ -50,7 +50,6 @@ const Entur = () => {
 
         const result = await response.json();
         console.log("Fetch result:", result);
-        console.log("stopPlace data:", result.data.stopPlace);
 
         if (result.errors) {
           throw new Error(
@@ -58,7 +57,18 @@ const Entur = () => {
           );
         }
 
-        setDepartures(result.data.stopPlace.estimatedCalls);
+        if (!result.data || !result.data.stopPlace) {
+          throw new Error("No stopPlace data found in the response.");
+        }
+
+        const filteredDepartures = result.data.stopPlace.estimatedCalls.filter(
+          (call) =>
+            ["1", "2", "3", "4", "5"].includes(
+              call.serviceJourney.journeyPattern.line.publicCode
+            )
+        );
+
+        setDepartures(filteredDepartures);
       } catch (err) {
         setError(err.message);
         console.error("Fetching error: ", err);
@@ -79,6 +89,11 @@ const Entur = () => {
 
     if (diffMins <= 0) {
       return "Nå";
+    } else if (diffMins > 14) {
+      return departureTime.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     }
 
     return `${diffMins} min`;
@@ -90,7 +105,7 @@ const Entur = () => {
   return (
     <div>
       {error && <p style={{ color: "red" }}>{error}</p>}
-      <div>
+      <div className="content-text" style={{ marginBottom: "20px" }}>
         {closestDepartures.map((departure, index) => (
           <div
             key={index}
@@ -98,6 +113,11 @@ const Entur = () => {
               display: "flex",
               justifyContent: "space-between",
               marginBottom: "10px", // Add space between the items
+              padding: "10px",
+              backgroundColor: "#242f45",
+              color: "white",
+              borderRadius: "5px",
+              fontWeight: "bold",
             }}
           >
             <div style={{ textAlign: "left" }}>
@@ -111,7 +131,6 @@ const Entur = () => {
         ))}
       </div>
       <div>
-        <h2></h2>
         <div
           style={{
             whiteSpace: "nowrap",
@@ -127,7 +146,16 @@ const Entur = () => {
             }}
           >
             {upcomingDepartures.map((departure, index) => (
-              <span key={index} style={{ marginRight: "20px" }}>
+              <span
+                key={index}
+                style={{
+                  marginRight: "20px",
+                  padding: "5px",
+                  backgroundColor: "#242f45",
+                  color: "white",
+                  borderRadius: "5px",
+                }}
+              >
                 {departure.serviceJourney.journeyPattern.line.publicCode}{" "}
                 {departure.destinationDisplay.frontText}:{" "}
                 {formatTimeDifference(departure.expectedArrivalTime)}
@@ -144,6 +172,11 @@ const Entur = () => {
             }
             100% {
               transform: translate(-100%, 0);
+            }
+          }
+          @media (min-width: 1420px) {
+            .content-text {
+              font-size: 1.5em;
             }
           }
         `}

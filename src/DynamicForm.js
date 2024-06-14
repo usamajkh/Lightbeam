@@ -7,15 +7,16 @@ const DynamicForm = () => {
   const [formData, setFormData] = useState({});
   const [successMessage, setSuccessMessage] = useState(""); // State for success message
   const [buttonStyle, setButtonStyle] = useState({
-    backgroundColor: "rgba(227, 213, 202, 0.2)",
-    color: "black",
+    backgroundColor: "#242f45",
+    color: "white",
     border: "none",
     borderRadius: "4px",
     padding: "10px 20px",
     cursor: "pointer",
     fontWeight: "bold",
-    marginTop: "20px",
-    transition: "background-color 0.3s, color 0.3s",
+    marginTop: "5px",
+    marginRight: "10px",
+    transition: "all 0.3s ease",
   });
 
   const handleTypeChange = (e) => {
@@ -91,16 +92,16 @@ const DynamicForm = () => {
   const handleMouseEnter = () => {
     setButtonStyle((prevStyle) => ({
       ...prevStyle,
-      backgroundColor: "#242f45",
-      color: "white",
+      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
+      transform: "scale(1.05)",
     }));
   };
 
   const handleMouseLeave = () => {
     setButtonStyle((prevStyle) => ({
       ...prevStyle,
-      backgroundColor: "rgba(227, 213, 202, 0.2)",
-      color: "black",
+      boxShadow: "none",
+      transform: "scale(1)",
     }));
   };
 

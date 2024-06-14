@@ -172,7 +172,14 @@ const ViewContent = ({ setOfficeScreenContent }) => {
 
     const promises = formattedEditValues.map((entry) => {
       console.log(`Updating entry with ID ${entry.id}`, entry); // Debug log
-      const { id, user_id, ...editableFields } = entry; // Exclude id and user_id from editable fields
+      const { id, user_id, created_at, ...editableFields } = entry; // Exclude id from editable fields
+
+      // Ensure user_id and created_at are included in the payload
+      editableFields.user_id = user_id;
+      editableFields.created_at = created_at;
+
+      console.log("Editable fields:", editableFields); // Debug log
+
       return axios
         .put(
           `http://localhost:3000/${selectedTable}/${entry.id}`,
@@ -235,8 +242,8 @@ const ViewContent = ({ setOfficeScreenContent }) => {
   }, [selectedTable]);
 
   const buttonStyle = {
-    backgroundColor: "rgba(227, 213, 202, 0.2)",
-    color: "black",
+    backgroundColor: "#242f45",
+    color: "white",
     border: "none",
     borderRadius: "4px",
     padding: "10px 20px",
@@ -244,20 +251,26 @@ const ViewContent = ({ setOfficeScreenContent }) => {
     fontWeight: "bold",
     marginTop: "20px",
     marginRight: "10px",
-    transition: "background-color 0.3s, color 0.3s",
+    transition: "all 0.3s ease",
   };
 
   const handleMouseEnter = (setButtonStyle) => {
-    setButtonStyle({
+    setButtonStyle((prevStyle) => ({
+      ...prevStyle,
       backgroundColor: "#242f45",
       color: "white",
-    });
+      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
+      transform: "scale(1.05)",
+    }));
   };
 
   const handleMouseLeave = (setButtonStyle) => {
-    setButtonStyle({});
+    setButtonStyle((prevStyle) => ({
+      ...prevStyle,
+      boxShadow: "none",
+      transform: "scale(1)",
+    }));
   };
-
   const handleEditChange = (id, key, value) => {
     console.log(`Editing value for entry ${id} - ${key}: ${value}`);
     setEditValues((prevValues) => ({
